@@ -2,6 +2,7 @@ import gym
 import os
 import pygame
 import platform
+import time
 
 try:
     os.environ["DISPLAY"]
@@ -34,4 +35,5 @@ for step in range(300):
     env.render() # Show agent actions on screen
     env.step(env.action_space.sample()) # Sample random action
     print('step: ', step)
+    #time.sleep(1) descoment to see in 'slow'
 env.close()
