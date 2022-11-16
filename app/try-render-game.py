@@ -28,12 +28,12 @@ for driver in drivers:
 if not found:
     #raise Exception('No suitable video driver found!')
     print('no video driver found')
+
 env = gym.make("LunarLander-v2", render_mode="human")
 
 env.reset() # Instantiate enviroment with default parameters
-for step in range(300):
+for step in range(3000):
     env.render() # Show agent actions on screen
     env.step(env.action_space.sample()) # Sample random action
-    print('step: ', step)
     #time.sleep(1) descoment to see in 'slow'
 env.close()

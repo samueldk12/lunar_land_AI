@@ -8,13 +8,23 @@ import matplotlib.pyplot as plt
 from keras.activations import relu, linear
 
 import numpy as np
-env = gym.make('LunarLander-v2')
+
+env = gym.make(
+    "LunarLander-v2",
+    continuous = False,
+    gravity = -11.0,
+    enable_wind = True,
+    wind_power = 15.0,
+    turbulence_power = 1.5,
+)
+
+#env = gym.make('LunarLander-v2')
+
 env.action_space.seed(0)
-np.random.seed(0)
+#np.random.seed(0)
 
 
 class DQN:
-
     """ Implementation of deep q learning algorithm """
 
     def __init__(self, action_space, state_space):
@@ -64,7 +74,7 @@ class DQN:
         states = np.squeeze(states)
         next_states = np.squeeze(next_states)
 
-        targets = rewards + self.gamma*(np.amax(self.model.predict_on_batch(next_states), axis=1))*(1-dones)
+        targets = rewards + self.gamma * (np.amax(self.model.predict_on_batch(next_states), axis=1)) * (1 - dones)
         targets_full = self.model.predict_on_batch(states)
 
         ind = np.array([i for i in range(self.batch_size)])
@@ -77,23 +87,21 @@ class DQN:
 
 
 def train_dqn(episode):
-
     loss = []
     agent = DQN(env.action_space.n, env.observation_space.shape[0])
     for e in range(episode):
         state = env.reset()
-        print('STATE::: ',state)
         state = np.reshape(state, (1, 8))
         score = 0
-        max_steps = 3000
+        max_steps = 500
         for i in range(max_steps):
 
             action = agent.act(state)
             env.render()
 
-            next_state, reward, done, _  = env.step(action)
+            next_state, reward, done, _ = env.step(action)
             score += reward
-
+            print(state)
             next_state = np.reshape(next_state, (1, 8))
             agent.remember(state, action, reward, next_state, done)
             state = next_state
@@ -113,10 +121,9 @@ def train_dqn(episode):
 
 
 if __name__ == '__main__':
-
     print(env.observation_space)
     print(env.action_space)
     episodes = 400
     loss = train_dqn(episodes)
-    plt.plot([i+1 for i in range(0, len(loss), 2)], loss[::2])
+    plt.plot([i + 1 for i in range(0, len(loss), 2)], loss[::2])
     plt.show()
