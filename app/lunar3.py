@@ -117,13 +117,16 @@ def train_dqn(episode):
             print('\n Task Completed! \n')
             break
         print("Average over last 100 episode: {0:.2f} \n".format(is_solved))
-    return loss
+    return loss, agent
 
 
 if __name__ == '__main__':
     print(env.observation_space)
     print(env.action_space)
-    episodes = 400
-    loss = train_dqn(episodes)
+    episodes = 4
+    loss, agent = train_dqn(episodes)
+
+    print(agent.model)
+
     plt.plot([i + 1 for i in range(0, len(loss), 2)], loss[::2])
     plt.show()
