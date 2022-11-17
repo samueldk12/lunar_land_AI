@@ -11,7 +11,7 @@ env = gym.make(
     turbulence_power = 1.5,
 )
 
-q_network = tf.keras.models.load_model('./models/medium.h5')
+q_network = tf.keras.models.load_model('./models/hard.h5')
 
 
 def run(env, q_network):
