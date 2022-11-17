@@ -18,17 +18,11 @@ env = gym.make(
     turbulence_power = 1.5,
 )
 
-#env = gym.make('LunarLander-v2')
-
 env.action_space.seed(0)
-#np.random.seed(0)
 
 
 class DQN:
-    """ Implementation of deep q learning algorithm """
-
     def __init__(self, action_space, state_space):
-
         self.action_space = action_space
         self.state_space = state_space
         self.epsilon = 1.0
@@ -41,7 +35,6 @@ class DQN:
         self.model = self.build_model()
 
     def build_model(self):
-
         model = Sequential()
         model.add(Dense(150, input_dim=self.state_space, activation=relu))
         model.add(Dense(120, activation=relu))
@@ -53,14 +46,12 @@ class DQN:
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
-
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_space)
         act_values = self.model.predict(state)
         return np.argmax(act_values[0])
 
     def replay(self):
-
         if len(self.memory) < self.batch_size:
             return
 
@@ -85,6 +76,8 @@ class DQN:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+    def save_model(self, name):
+        self.model.save('./models/'+name+'.h5')
 
 def train_dqn(episode):
     loss = []
@@ -96,55 +89,34 @@ def train_dqn(episode):
         max_steps = 500
         for i in range(max_steps):
             action = agent.act(state)
-            env.render(mode="rgb_array")
+            env.render()
             next_state, reward, done, _ = env.step(action)
             score += reward
-            print(state)
             next_state = np.reshape(next_state, (1, 8))
             agent.remember(state, action, reward, next_state, done)
             state = next_state
             agent.replay()
             if done:
-                print("episode: {}/{}, score: {}".format(e, episode, score))
+                print("Época: {}/{}, score: {}".format(e, episode, score))
                 break
         loss.append(score)
-
-        # Average score of last 100 episode
         is_solved = np.mean(loss[-100:])
         if is_solved > 200:
-            print('\n Task Completed! \n')
+            print('\n Treino finalizado \n')
             break
-        print("Average over last 100 episode: {0:.2f} \n".format(is_solved))
+        print("Últimas 100 Épocas: {0:.2f} \n".format(is_solved))
     return loss, agent
 
 
 if __name__ == '__main__':
     print(env.observation_space)
     print(env.action_space)
-    episodes = 5
+    episodes = 500
     loss, agent = train_dqn(episodes)
     plt.plot([i + 1 for i in range(0, len(loss), 2)], loss[::2])
     plt.show()
+    agent.save_model('hard')
 
-    # -----
-    env_trained = gym.make(
-        "LunarLander-v2",
-        continuous = False,
-        gravity = -11.0,
-        enable_wind = True,
-        wind_power = 15.0,
-        turbulence_power = 1.5,
-    )
-    state = env_trained.reset()
-    max_steps = 500
-    for i in range(max_steps):
-        state = env_trained.reset()
-        state = np.reshape(state, (1, 8))
-        action = agent.act(state)
-        env_trained.render()
-        next_state, reward, done, _ = env.step(action)
-        next_state = np.reshape(next_state, (1, 8))
-        state = next_state
-        agent.replay()
-
-
+# easy 5 epocas
+# medium 100 épocas
+# hard 500 épocas
